@@ -1,34 +1,25 @@
-# Backend Dockerfile
-FROM node:18-alpine
+FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
-COPY src/ ./src/
+COPY . .
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN addgroup --system --gid 1001 django && \
+    adduser --system --uid 1001 --gid 1001 django
 
-# Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+RUN chown -R django:django /app
+USER django
 
-# Expose port
 EXPOSE 5001
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5001/api/health', (res) => { \
-    process.exit(res.statusCode === 200 ? 0 : 1); \
-  }).on('error', () => process.exit(1));"
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/health/')"
 
-# Start the application
-CMD ["node", "src/server.js"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:5001"]

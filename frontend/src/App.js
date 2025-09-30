@@ -12,7 +12,6 @@ import LoadingSpinner from './components/LoadingSpinner';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-// Protected Route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
@@ -23,7 +22,6 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
-// Public Route component (redirect if already authenticated)
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
@@ -46,7 +44,6 @@ function AppContent() {
       <Navbar />
       <div className="container-fluid">
         <Routes>
-          {/* Public Routes */}
           <Route
             path="/login"
             element={

@@ -1,30 +1,83 @@
-# Fullstack Task Management Application
+# Task Manager
 
-A modern, responsive task management application built with React.js, Node.js, Express, MongoDB, and Firebase OAuth integration.
+A simple task management app with React frontend and Django backend.
 
-##  Features
+## Tech Stack
 
-### Core Functionality
-- **Task Management**: Create, read, update, and delete tasks
-- **User Authentication**: Dual authentication system (traditional + Google OAuth)
-- **Real-time Updates**: Instant task status updates
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Task Filtering**: Filter tasks by status (pending, in-progress, completed)
-- **User Dashboard**: Personalized task overview and statistics
+- **Frontend**: React, Bootstrap, Firebase Auth
+- **Backend**: Django, Django REST Framework, MongoDB
+- **Authentication**: JWT + Google OAuth
 
-### Authentication Features
-- **Traditional Login/Register**: Email and password authentication
-- **Google OAuth**: One-click sign-in with Google
-- **JWT Token Management**: Secure token-based authentication
-- **Protected Routes**: Access control for authenticated users
-- **User Profiles**: Manage user information and preferences
+## Quick Start
 
-### Technical Features
-- **RESTful API**: Well-structured backend API endpoints
-- **Data Validation**: Input validation on both frontend and backend
-- **Error Handling**: Comprehensive error handling and user feedback
-- **Security**: CORS, Helmet, Rate limiting, and input sanitization
-- **Docker Support**: Containerized application for easy deployment
+### Setup
+```bash
+git clone <your-repo>
+cd fullstack
+cp .env.example .env
+# Edit .env with your credentials
+```
+
+### Install Dependencies
+```bash
+# Backend
+cd backend
+pip install -r requirements.txt
+
+# Frontend  
+cd ../frontend
+npm install
+```
+
+### Run
+```bash
+# Backend (Terminal 1)
+cd backend
+python manage.py runserver 127.0.0.1:5001
+
+# Frontend (Terminal 2)
+cd frontend
+npm start
+```
+
+Open http://localhost:3000
+
+### Docker
+```bash
+docker-compose up --build
+```
+
+## Features
+
+- Create, edit, delete tasks
+- User authentication (email/password + Google)
+- Task filtering and pagination
+- Responsive design
+
+## API Endpoints
+
+- `POST /api/users/register` - Register
+- `POST /api/users/login` - Login
+- `POST /api/users/oauth` - Google OAuth
+- `GET /api/tasks` - Get tasks
+- `POST /api/tasks` - Create task
+- `PUT /api/tasks/:id` - Update task
+- `DELETE /api/tasks/:id` - Delete task
+
+## Environment Variables
+
+Create `.env` file with:
+```
+MONGODB_URI=mongodb://localhost:27017/taskmanager
+JWT_SECRET=your-secret-key
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-...@your-project.iam.gserviceaccount.com
+REACT_APP_API_URL=http://localhost:5001/api
+REACT_APP_FIREBASE_API_KEY=your-api-key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your-project-id
+```
 
 ## Technology Stack
 
@@ -37,12 +90,12 @@ A modern, responsive task management application built with React.js, Node.js, E
 - **Firebase SDK**: Google OAuth integration
 
 ### Backend
-- **Node.js**: JavaScript runtime environment
-- **Express.js**: Web application framework
-- **MongoDB**: NoSQL database with Mongoose ODM
+- **Django 4.2**: Python web framework with REST API
+- **Django REST Framework**: Powerful API development toolkit
+- **MongoDB**: NoSQL database with MongoEngine ODM
 - **Firebase Admin SDK**: Server-side Firebase integration
-- **JWT**: JSON Web Token authentication
-- **Security Middleware**: Helmet, CORS, Rate limiting
+- **JWT**: JSON Web Token authentication with SimpleJWT
+- **Security Middleware**: CORS, Rate limiting, Security headers
 
 ### DevOps & Deployment
 - **Docker**: Containerization support
@@ -70,21 +123,25 @@ cd fullstack
 
 ### 2. Environment Configuration
 ```bash
-# Copy the environment template
+# Copy the environment template (single .env file for both backend and frontend)
 cp .env.example .env
 
 # Edit .env with your actual values:
-# - Database connection string
-# - JWT secret key
-# - Firebase configuration (both backend Admin SDK and frontend Web SDK)
+# - Database connection string (MONGODB_URI)
+# - JWT secret key (JWT_SECRET)
+# - Firebase Admin SDK configuration (FIREBASE_*)
+# - Firebase Web SDK configuration (REACT_APP_FIREBASE_*)
 # - API URLs and ports
+
+# Note: The .env file in the root directory is used by both backend and frontend
+# Frontend uses a symbolic link to access the root .env file
 ```
 
 ### 3. Install Dependencies
 ```bash
-# Backend dependencies
+# Backend dependencies (Django/Python)
 cd backend
-npm install
+pip install -r requirements.txt
 
 # Frontend dependencies  
 cd ../frontend
@@ -134,7 +191,7 @@ mongod
 #### Start Backend Server
 ```bash
 cd backend
-npm start
+python manage.py runserver 127.0.0.1:5001
 # Server runs on http://localhost:5001
 ```
 
@@ -162,7 +219,11 @@ docker-compose up --build
 
 ```
 fullstack/
-├── frontend/                 # React.js application
+├── .env                     # Consolidated environment variables (backend + frontend)
+├── .env.example             # Environment template with all required variables
+├── docker-compose.yml       # Multi-container Docker setup
+├── setup.sh                # Automated setup script
+├── frontend/                # React.js application
 │   ├── public/              # Static files
 │   ├── src/
 │   │   ├── components/      # Reusable React components
@@ -172,18 +233,23 @@ fullstack/
 │   │   ├── context/         # React Context (AuthContext)
 │   │   ├── services/        # API services and Firebase config
 │   │   └── App.js           # Main application component
-│   ├── .env                 # Frontend environment variables
+│   ├── .env -> ../.env      # Symbolic link to root .env file
 │   └── package.json         # Frontend dependencies
-├── backend/                 # Node.js/Express API
-│   ├── src/
-│   │   ├── controllers/     # Route controllers
-│   │   ├── models/          # Mongoose models
-│   │   ├── routes/          # API routes
-│   │   ├── middleware/      # Custom middleware
-│   │   ├── config/          # Configuration files
-│   │   └── server.js        # Express server setup
-│   ├── .env                 # Backend environment variables
-│   └── package.json         # Backend dependencies
+├── backend/                 # Django REST API
+│   ├── backend_project/     # Django project settings
+│   │   ├── settings.py      # Django configuration (loads root .env)
+│   │   ├── urls.py          # Main URL routing
+│   │   └── wsgi.py          # WSGI configuration
+│   ├── users/               # User authentication app
+│   │   ├── models.py        # User model (MongoEngine)
+│   │   ├── views.py         # Authentication views
+│   │   └── urls.py          # User API routes
+│   ├── tasks/               # Task management app
+│   │   ├── models.py        # Task model (MongoEngine)
+│   │   ├── views.py         # Task CRUD views
+│   │   └── urls.py          # Task API routes
+│   ├── manage.py            # Django management script
+│   └── requirements.txt     # Python dependencies
 ├── docker-compose.yml       # Docker orchestration
 ├── .gitignore              # Git ignore rules
 └── README.md               # Project documentation

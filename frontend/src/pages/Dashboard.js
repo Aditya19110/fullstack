@@ -22,7 +22,6 @@ const Dashboard = () => {
       setLoading(true);
       setError('');
       
-      // Fetch stats and recent tasks in parallel
       const [statsResponse, tasksResponse] = await Promise.all([
         taskAPI.getStats(),
         taskAPI.getTasks({ limit: 5 })
@@ -31,7 +30,6 @@ const Dashboard = () => {
       setStats(statsResponse.data.data);
       setRecentTasks(tasksResponse.data.data);
     } catch (error) {
-      console.error('Dashboard error:', error);
       setError(error.response?.data?.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
