@@ -8,10 +8,12 @@ services:
     restart: unless-stopped
     ports:
       - "27017:27017"
+    env_file:
+      - .env
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: fullstack_assignment
+      MONGO_INITDB_ROOT_USERNAME: ${DB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -31,30 +33,18 @@ services:
     container_name: taskapp-backend
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "5001:5001"
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
-      PORT: 5000
-      MONGODB_URI: mongodb://admin:password123@mongodb:27017/fullstack_assignment?authSource=admin
-      JWT_SECRET: your_super_secure_jwt_secret_key_for_production_change_this
-      JWT_EXPIRE: 30d
-      # Firebase Configuration
-      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-your_project_id}
-      FIREBASE_PRIVATE_KEY_ID: ${FIREBASE_PRIVATE_KEY_ID:-your_private_key_id}
-      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY:-your_private_key}
-      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL:-firebase-adminsdk-xxxx@your_project_id.iam.gserviceaccount.com}
-      FIREBASE_CLIENT_ID: ${FIREBASE_CLIENT_ID:-your_client_id}
-      FIREBASE_AUTH_URI: ${FIREBASE_AUTH_URI:-https://accounts.google.com/o/oauth2/auth}
-      FIREBASE_TOKEN_URI: ${FIREBASE_TOKEN_URI:-https://oauth2.googleapis.com/token}
-      FIREBASE_AUTH_PROVIDER_X509_CERT_URL: ${FIREBASE_AUTH_PROVIDER_X509_CERT_URL:-https://www.googleapis.com/oauth2/v1/certs}
-      FIREBASE_CLIENT_X509_CERT_URL: ${FIREBASE_CLIENT_X509_CERT_URL:-https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-xxxx%40your_project_id.iam.gserviceaccount.com}
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - taskapp-network
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1));"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5001/api/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1));"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -68,15 +58,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:5000/api
-      # Firebase Configuration
-      REACT_APP_FIREBASE_API_KEY: ${REACT_APP_FIREBASE_API_KEY:-your_firebase_api_key}
-      REACT_APP_FIREBASE_AUTH_DOMAIN: ${REACT_APP_FIREBASE_AUTH_DOMAIN:-your_project_id.firebaseapp.com}
-      REACT_APP_FIREBASE_PROJECT_ID: ${REACT_APP_FIREBASE_PROJECT_ID:-your_project_id}
-      REACT_APP_FIREBASE_STORAGE_BUCKET: ${REACT_APP_FIREBASE_STORAGE_BUCKET:-your_project_id.appspot.com}
-      REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${REACT_APP_FIREBASE_MESSAGING_SENDER_ID:-your_messaging_sender_id}
-      REACT_APP_FIREBASE_APP_ID: ${REACT_APP_FIREBASE_APP_ID:-your_app_id}
+    env_file:
+      - .env
     depends_on:
       backend:
         condition: service_healthy

@@ -2,7 +2,7 @@
 
 A modern, responsive task management application built with React.js, Node.js, Express, MongoDB, and Firebase OAuth integration.
 
-## 🚀 Features
+##  Features
 
 ### Core Functionality
 - **Task Management**: Create, read, update, and delete tasks
@@ -26,7 +26,7 @@ A modern, responsive task management application built with React.js, Node.js, E
 - **Security**: CORS, Helmet, Rate limiting, and input sanitization
 - **Docker Support**: Containerized application for easy deployment
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 - **React.js 18**: Modern React with hooks and functional components
@@ -50,7 +50,7 @@ A modern, responsive task management application built with React.js, Node.js, E
 - **Environment Variables**: Configuration management
 - **Git**: Version control with proper .gitignore setup
 
-## 📋 Prerequisites
+##  Prerequisites
 
 Before running this application, make sure you have:
 
@@ -60,7 +60,7 @@ Before running this application, make sure you have:
 - **Git** (for version control)
 - **Docker** (optional, for containerized deployment)
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
 ### 1. Clone the Repository
 ```bash
@@ -68,24 +68,27 @@ git clone <repository-url>
 cd fullstack
 ```
 
-### 2. Backend Setup
+### 2. Environment Configuration
 ```bash
+# Copy the environment template
+cp .env.example .env
+
+# Edit .env with your actual values:
+# - Database connection string
+# - JWT secret key
+# - Firebase configuration (both backend Admin SDK and frontend Web SDK)
+# - API URLs and ports
+```
+
+### 3. Install Dependencies
+```bash
+# Backend dependencies
 cd backend
 npm install
 
-# Create .env file with the following variables:
-NODE_ENV=development
-PORT=5001
-MONGODB_URI=mongodb://localhost:27017/sessions
-JWT_SECRET=your_super_secret_jwt_key_here
-JWT_EXPIRE=30d
-
-# Firebase Configuration
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_PRIVATE_KEY_ID=your-private-key-id
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@your-project.iam.gserviceaccount.com
-FIREBASE_CLIENT_ID=your-client-id
+# Frontend dependencies  
+cd ../frontend
+npm install
 ```
 
 ### 3. Frontend Setup
@@ -112,6 +115,7 @@ REACT_APP_FIREBASE_APP_ID=your-app-id
 4. Add **localhost** to **Authorized domains**
 5. Generate service account credentials for backend
 6. Configure OAuth consent screen in Google Cloud Console
+7. Update the Firebase configuration values in your `.env` file
 
 ### 5. MongoDB Setup
 ```bash
@@ -123,7 +127,7 @@ mongod
 # Create a cluster and update MONGODB_URI in backend/.env
 ```
 
-## 🚀 Running the Application
+## Running the Application
 
 ### Development Mode
 
@@ -150,7 +154,7 @@ docker-compose up --build
 # Backend: http://localhost:5001
 ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 fullstack/
@@ -181,26 +185,325 @@ fullstack/
 └── README.md               # Project documentation
 ```
 
-## 🔗 API Endpoints
+## API Endpoints
 
-### Authentication
-- `POST /api/users/register` - User registration
-- `POST /api/users/login` - User login
-- `POST /api/users/oauth-login` - Google OAuth login
-- `GET /api/users/me` - Get user profile
-- `PUT /api/users/profile` - Update user profile
+### Authentication Endpoints
 
-### Tasks
-- `GET /api/tasks` - Get user tasks
-- `POST /api/tasks` - Create new task
-- `GET /api/tasks/:id` - Get specific task
-- `PUT /api/tasks/:id` - Update task
-- `DELETE /api/tasks/:id` - Delete task
+#### POST /api/users/register
+Register a new user account
+```json
+Request Body:
+{
+  "name": "aditya",
+  "email": "aditya@example.com",
+  "password": "password123"
+}
 
-### Health Check
-- `GET /api/health` - Server health status
+Response (201):
+{
+  "success": true,
+  "message": "User registered successfully",
+  "token": "jwt_token_here",
+  "user": {
+    "id": "user_id",
+    "name": "aditya",
+    "email": "aditya@example.com"
+  }
+}
+```
 
-## 🔐 Authentication Flow
+#### POST /api/users/login
+Authenticate user with email and password
+```json
+Request Body:
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+Response (200):
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "jwt_token_here",
+  "user": {
+    "id": "user_id",
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+#### POST /api/users/oauth-login
+Authenticate user with Firebase OAuth token
+```json
+Request Body:
+{
+  "idToken": "firebase_id_token_here"
+}
+
+Response (200):
+{
+  "success": true,
+  "message": "OAuth login successful",
+  "token": "jwt_token_here",
+  "user": {
+    "id": "user_id",
+    "name": "aditya",
+    "email": "aditya@example.com"
+  }
+}
+```
+
+#### GET /api/users/me
+Get current user profile (Protected Route)
+```
+Headers: Authorization: Bearer <jwt_token>
+
+Response (200):
+{
+  "success": true,
+  "data": {
+    "id": "user_id",
+    "name": "aaditya",
+    "email": "aditya@example.com",
+    "createdAt": "2023-01-01T00:00:00.000Z"
+  }
+}
+```
+
+### Task Management Endpoints
+
+#### GET /api/tasks
+Get all tasks for authenticated user
+```
+Headers: Authorization: Bearer <jwt_token>
+Query Parameters:
+  - status: pending|in-progress|completed
+  - priority: low|medium|high
+  - page: number (default: 1)
+  - limit: number (default: 10)
+
+Response (200):
+{
+  "success": true,
+  "data": [
+    {
+      "id": "task_id",
+      "title": "Sample Task",
+      "description": "Task description",
+      "status": "pending",
+      "priority": "medium",
+      "dueDate": "2023-12-31T23:59:59.000Z",
+      "createdAt": "2023-01-01T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "pages": 1
+  }
+}
+```
+
+#### POST /api/tasks
+Create a new task
+```json
+Headers: Authorization: Bearer <jwt_token>
+
+Request Body:
+{
+  "title": "New Task",
+  "description": "Task description",
+  "priority": "high",
+  "dueDate": "2023-12-31"
+}
+
+Response (201):
+{
+  "success": true,
+  "message": "Task created successfully",
+  "data": {
+    "id": "task_id",
+    "title": "New Task",
+    "description": "Task description",
+    "status": "pending",
+    "priority": "high",
+    "dueDate": "2023-12-31T00:00:00.000Z"
+  }
+}
+```
+
+#### PUT /api/tasks/:id
+Update an existing task
+```json
+Headers: Authorization: Bearer <jwt_token>
+
+Request Body:
+{
+  "title": "Updated Task",
+  "status": "completed",
+  "priority": "low"
+}
+
+Response (200):
+{
+  "success": true,
+  "message": "Task updated successfully",
+  "data": {
+    "id": "task_id",
+    "title": "Updated Task",
+    "status": "completed",
+    "priority": "low"
+  }
+}
+```
+
+#### DELETE /api/tasks/:id
+Delete a task
+```
+Headers: Authorization: Bearer <jwt_token>
+
+Response (200):
+{
+  "success": true,
+  "message": "Task deleted successfully"
+}
+```
+
+### Utility Endpoints
+
+#### GET /api/health
+Check server health status
+```json
+Response (200):
+{
+  "message": "Server is running!",
+  "timestamp": "2023-01-01T00:00:00.000Z",
+  "environment": "development"
+}
+```
+
+#### GET /api/tasks/stats
+Get task statistics for user (Protected Route)
+```json
+Headers: Authorization: Bearer <jwt_token>
+
+Response (200):
+{
+  "success": true,
+  "data": {
+    "total": 10,
+    "pending": 3,
+    "inProgress": 4,
+    "completed": 3,
+    "overdue": 1
+  }
+}
+```
+
+## Database Schema
+
+### User Model
+```javascript
+{
+  _id: ObjectId,
+  name: String (required),
+  email: String (required, unique),
+  password: String (hashed),
+  googleId: String (optional, for OAuth users),
+  isOAuthUser: Boolean (default: false),
+  profilePicture: String (optional),
+  createdAt: Date (default: Date.now),
+  updatedAt: Date (default: Date.now)
+}
+```
+
+### Task Model
+```javascript
+{
+  _id: ObjectId,
+  title: String (required),
+  description: String,
+  status: String (enum: ['pending', 'in-progress', 'completed']),
+  priority: String (enum: ['low', 'medium', 'high']),
+  dueDate: Date,
+  userId: ObjectId (ref: 'User'),
+  createdAt: Date (default: Date.now),
+  updatedAt: Date (default: Date.now)
+}
+```
+
+## Error Responses
+
+The API uses standard HTTP status codes and returns consistent error responses:
+
+### Authentication Errors
+```json
+// 401 Unauthorized
+{
+  "success": false,
+  "message": "No token provided" | "Invalid token" | "Token expired"
+}
+
+// 403 Forbidden
+{
+  "success": false,
+  "message": "Access denied"
+}
+```
+
+### Validation Errors
+```json
+// 400 Bad Request
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Valid email is required"
+    },
+    {
+      "field": "password",
+      "message": "Password must be at least 6 characters"
+    }
+  ]
+}
+```
+
+### Resource Errors
+```json
+// 404 Not Found
+{
+  "success": false,
+  "message": "Task not found" | "User not found"
+}
+
+// 409 Conflict
+{
+  "success": false,
+  "message": "Email already exists"
+}
+```
+
+### Server Errors
+```json
+// 500 Internal Server Error
+{
+  "success": false,
+  "message": "Internal server error"
+}
+
+// 429 Too Many Requests
+{
+  "success": false,
+  "message": "Too many requests, please try again later"
+}
+```
+
+## Authentication Flow
 
 ### Traditional Authentication
 1. User registers with email/password
@@ -216,7 +519,7 @@ fullstack/
 5. Backend verifies token with Firebase Admin SDK
 6. Server creates/updates user and returns JWT token
 
-## 🎨 UI/UX Features
+## UI/UX Features
 
 - **Modern Design**: Clean, professional interface
 - **Responsive Layout**: Mobile-first responsive design
@@ -226,7 +529,7 @@ fullstack/
 - **Form Validation**: Real-time input validation
 - **Task Status Indicators**: Visual task status representation
 
-## 🔒 Security Features
+##  Security Features
 
 - **JWT Authentication**: Secure token-based authentication
 - **Password Hashing**: bcrypt password encryption
@@ -236,7 +539,7 @@ fullstack/
 - **Environment Variables**: Sensitive data protection
 - **Firebase Security**: Google OAuth integration security
 
-## 🧪 Testing
+##  Testing
 
 ### Frontend Testing
 ```bash
@@ -250,7 +553,7 @@ cd backend
 npm test
 ```
 
-## 📱 Usage
+## Usage
 
 1. **Registration**: Create account with email/password or Google OAuth
 2. **Login**: Sign in using either authentication method
@@ -260,7 +563,7 @@ npm test
 6. **Filter Tasks**: View tasks by status (all, pending, completed)
 7. **Profile Management**: Update user profile information
 
-## 🚀 Deployment
+##  Deployment
 
 ### Production Environment Variables
 Update environment variables for production:
@@ -275,7 +578,7 @@ Update environment variables for production:
 docker-compose -f docker-compose.prod.yml up --build
 ```
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/amazing-feature`)
@@ -283,21 +586,114 @@ docker-compose -f docker-compose.prod.yml up --build
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
 
-## 📄 License
+## Testing
+
+### Running Tests
+
+Backend tests:
+```bash
+cd backend
+npm test
+```
+
+Frontend tests:
+```bash
+cd frontend
+npm test
+```
+
+### Test Coverage
+- API endpoint testing with Jest and Supertest
+- React component testing with Jest and React Testing Library
+- Authentication flow testing
+- Task CRUD operations testing
+
+## Deployment
+
+### Docker Deployment
+The application includes Docker configuration for easy deployment:
+
+```bash
+# Build and start all services
+docker-compose up --build
+
+# Run in detached mode
+docker-compose up -d
+
+# Stop services
+docker-compose down
+```
+
+### Manual Deployment
+1. Set up MongoDB database
+2. Configure environment variables in production
+3. Build frontend: `cd frontend && npm run build`
+4. Start backend server: `cd backend && npm start`
+5. Serve frontend build files through web server
+
+### Environment Configuration
+Make sure to set the following environment variables in production:
+- `NODE_ENV=production`
+- `JWT_SECRET` (strong secret key)
+- `MONGODB_URI` (production database URL)
+- Firebase configuration keys
+- Port configurations
+
+## Security Features
+
+- JWT-based authentication
+- Password hashing with bcryptjs
+- Input validation and sanitization
+- Rate limiting to prevent abuse
+- CORS configuration
+- Helmet.js for security headers
+- Protected routes and middleware
+- Firebase OAuth integration
+
+## Performance Considerations
+
+- Database indexing on frequently queried fields
+- Pagination for task lists
+- Rate limiting for API endpoints
+- Efficient MongoDB aggregation for statistics
+- Optimized React components with proper state management
+
+## Architecture Decisions
+
+### Frontend Architecture
+- **React with Hooks**: Modern functional components for better performance
+- **Context API**: Global state management for authentication
+- **Bootstrap**: Responsive UI framework for faster development
+- **Axios**: HTTP client with interceptors for token management
+
+### Backend Architecture
+- **Express.js**: Lightweight and flexible Node.js framework
+- **MongoDB with Mongoose**: NoSQL database with ODM for schema validation
+- **JWT Authentication**: Stateless authentication mechanism
+- **Firebase Admin**: Server-side OAuth token verification
+- **Modular Structure**: Separate controllers, routes, and middleware
+
+### Security Architecture
+- **Dual Authentication**: Traditional email/password and OAuth options
+- **Token-based Authentication**: JWT for stateless session management
+- **Input Validation**: Comprehensive validation at API level
+- **Rate Limiting**: Protection against abuse and DoS attacks
+
+## License
 
 This project is licensed under the MIT License.
 
-## 📧 Support
+##  Support
 
 For support and questions, please contact [your-email@example.com]
 
 ---
 
-**Built with ❤️ using modern web technologies**
+**Built using modern web technologies**
 
 A modern, responsive task management application built with **React.js** frontend and **Node.js/Express** backend, featuring user authentication, task CRUD operations, and a clean, intuitive UI.
 
-## 🚀 Features
+##  Features
 
 ### Frontend (React.js)
 - **Modern UI/UX**: Bootstrap-based responsive design with custom styling
@@ -323,7 +719,7 @@ A modern, responsive task management application built with **React.js** fronten
 - **Indexing**: Optimized database queries
 - **Data Validation**: Schema-level validation
 
-## 📋 Prerequisites
+##  Prerequisites
 
 Before running this application, make sure you have the following installed:
 
@@ -342,7 +738,7 @@ cd fullstack
 docker-compose up --build
 ```
 
-**🎉 Your application will be running at:**
+** Your application will be running at:**
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:5000
 
@@ -355,7 +751,7 @@ For detailed Docker instructions, see [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.m
 
 ---
 
-## �🛠 Manual Installation & Setup
+## � Manual Installation & Setup
 
 ### 1. Install Dependencies
 
@@ -434,7 +830,7 @@ The application will be available at:
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:5000
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 fullstack/
@@ -461,7 +857,7 @@ fullstack/
 └── README.md                 # This file
 ```
 
-## 🔧 Technology Stack
+##  Technology Stack
 
 ### Frontend
 - **React.js** - JavaScript library for building user interfaces
@@ -483,7 +879,7 @@ fullstack/
 - **Morgan** - HTTP request logger
 - **CORS** - Cross-Origin Resource Sharing
 
-## 🔐 API Endpoints
+##  API Endpoints
 
 ### Authentication
 - `POST /api/users/register` - Register new user
@@ -515,7 +911,7 @@ fullstack/
 - Assign tasks to any user
 - Access to admin-specific features
 
-## 🎨 UI Features
+##  UI Features
 
 ### Responsive Design
 - Mobile-first approach
@@ -536,7 +932,7 @@ fullstack/
 - Overdue task indicators
 - Task statistics cards
 
-## 🚀 Deployment Options
+##  Deployment Options
 
 ### 1. Docker Deployment (Recommended)
 ```bash
@@ -584,7 +980,7 @@ JWT_EXPIRE=30d
 - [ ] Configure backup strategy
 - [ ] Test all functionality
 
-## 🧪 Testing
+##  Testing
 
 ### Backend Testing
 ```bash
@@ -598,7 +994,7 @@ cd frontend
 npm test
 ```
 
-## 🤝 Usage Instructions
+##  Usage Instructions
 
 1. **Registration**: Create a new account or use existing credentials
 2. **Dashboard**: View task overview and statistics
@@ -607,7 +1003,7 @@ npm test
 5. **Filter Tasks**: Use status and priority filters to organize tasks
 6. **Profile**: Update your personal information
 
-## 🔒 Security Features
+##  Security Features
 
 - Password hashing with bcrypt
 - JWT token authentication
@@ -617,7 +1013,7 @@ npm test
 - CORS configuration
 - MongoDB injection prevention
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -638,7 +1034,7 @@ npm test
    - Delete `node_modules` and run `npm install` again
    - Check Node.js version compatibility
 
-## 📝 Development Notes
+## Development Notes
 
 ### Code Quality
 - ESLint configuration for code linting
@@ -652,21 +1048,21 @@ npm test
 - Efficient React re-rendering
 - Optimized API responses
 
-## 🎯 Assignment Requirements Met
+##  Assignment Requirements Met
 
 This fullstack application demonstrates:
 
-✅ **Frontend Development**: Modern React.js with hooks and context
-✅ **Backend Development**: RESTful API with Node.js/Express
-✅ **Database Integration**: MongoDB with Mongoose ODM
-✅ **Authentication**: JWT-based user authentication
-✅ **CRUD Operations**: Complete task management functionality
-✅ **Responsive Design**: Mobile-friendly interface
-✅ **Error Handling**: Comprehensive error management
-✅ **Security**: Industry-standard security practices
-✅ **Documentation**: Comprehensive setup and usage guides
+ **Frontend Development**: Modern React.js with hooks and context
+ **Backend Development**: RESTful API with Node.js/Express
+ **Database Integration**: MongoDB with Mongoose ODM
+ **Authentication**: JWT-based user authentication
+ **CRUD Operations**: Complete task management functionality
+ **Responsive Design**: Mobile-friendly interface
+ **Error Handling**: Comprehensive error management
+ **Security**: Industry-standard security practices
+ **Documentation**: Comprehensive setup and usage guides
 
-## 📧 Support
+##  Support
 
 For any issues or questions, please refer to the troubleshooting section above or check the application logs for detailed error messages.
 
