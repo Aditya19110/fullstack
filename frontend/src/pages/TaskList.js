@@ -63,7 +63,7 @@ const TaskList = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await taskAPI.deleteTask(taskToDelete._id);
+      await taskAPI.deleteTask(taskToDelete.id);
       setShowDeleteModal(false);
       setTaskToDelete(null);
       fetchTasks(); // Refresh the list
@@ -177,7 +177,7 @@ const TaskList = () => {
       <Row>
         {tasks.length > 0 ? (
           tasks.map((task) => (
-            <Col md={6} lg={4} key={task._id} className="mb-4">
+            <Col md={6} lg={4} key={task.id} className="mb-4">
               <Card className={`task-card h-100 priority-${task.priority}`}>
                 <Card.Body>
                   <div className="d-flex justify-content-between align-items-start mb-2">
@@ -194,7 +194,7 @@ const TaskList = () => {
                         <li>
                           <button 
                             className="dropdown-item"
-                            onClick={() => handleStatusUpdate(task._id, 'pending')}
+                            onClick={() => handleStatusUpdate(task.id, 'pending')}
                             disabled={task.status === 'pending'}
                           >
                             <i className="bi bi-clock me-2"></i>
@@ -204,7 +204,7 @@ const TaskList = () => {
                         <li>
                           <button 
                             className="dropdown-item"
-                            onClick={() => handleStatusUpdate(task._id, 'in-progress')}
+                            onClick={() => handleStatusUpdate(task.id, 'in-progress')}
                             disabled={task.status === 'in-progress'}
                           >
                             <i className="bi bi-arrow-clockwise me-2"></i>
@@ -214,7 +214,7 @@ const TaskList = () => {
                         <li>
                           <button 
                             className="dropdown-item"
-                            onClick={() => handleStatusUpdate(task._id, 'completed')}
+                            onClick={() => handleStatusUpdate(task.id, 'completed')}
                             disabled={task.status === 'completed'}
                           >
                             <i className="bi bi-check-circle me-2"></i>

@@ -182,7 +182,7 @@ const Dashboard = () => {
               {recentTasks.length > 0 ? (
                 <div className="list-group list-group-flush">
                   {recentTasks.map((task) => (
-                    <div key={task._id} className="list-group-item list-group-item-action">
+                    <div key={task.id} className="list-group-item list-group-item-action">
                       <div className="d-flex w-100 justify-content-between align-items-start">
                         <div className="flex-grow-1">
                           <h6 className="mb-1">{task.title}</h6>

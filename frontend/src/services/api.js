@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base configuration
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5001/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api',
   timeout: 10000,
 });
 
@@ -46,9 +46,9 @@ export const authAPI = {
 export const taskAPI = {
   getTasks: (params) => API.get('/tasks', { params }),
   getTask: (id) => API.get(`/tasks/${id}`),
-  createTask: (taskData) => API.post('/tasks', taskData),
-  updateTask: (id, taskData) => API.put(`/tasks/${id}`, taskData),
-  deleteTask: (id) => API.delete(`/tasks/${id}`),
+  createTask: (taskData) => API.post('/tasks/create/', taskData),
+  updateTask: (id, taskData) => API.put(`/tasks/${id}/update/`, taskData),
+  deleteTask: (id) => API.delete(`/tasks/${id}/delete/`),
   getStats: () => API.get('/tasks/stats'),
 };
 

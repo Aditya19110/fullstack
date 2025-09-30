@@ -24,7 +24,7 @@ const CreateTask = () => {
   useEffect(() => {
     fetchUsers();
     // Set default assignedTo to current user
-    setFormData(prev => ({ ...prev, assignedTo: user?._id || '' }));
+    setFormData(prev => ({ ...prev, assignedTo: user?.id || '' }));
   }, [user]);
 
   const fetchUsers = async () => {
@@ -72,7 +72,7 @@ const CreateTask = () => {
         ...formData,
         tags,
         dueDate: formData.dueDate || undefined,
-        assignedTo: formData.assignedTo || user._id
+        assignedTo: formData.assignedTo || user?.id
       };
 
       await taskAPI.createTask(taskData);
@@ -84,7 +84,7 @@ const CreateTask = () => {
         description: '',
         priority: 'medium',
         dueDate: '',
-        assignedTo: user._id,
+        assignedTo: user?.id || '',
         tags: ''
       });
 
@@ -217,8 +217,8 @@ const CreateTask = () => {
                     >
                       <option value="">Select user...</option>
                       {users.map(userOption => (
-                        <option key={userOption._id} value={userOption._id}>
-                          {userOption.name} {userOption._id === user._id ? '(Me)' : ''}
+                        <option key={userOption.id} value={userOption.id}>
+                          {userOption.name} {userOption.id === user?.id ? '(Me)' : ''}
                         </option>
                       ))}
                     </Form.Select>
