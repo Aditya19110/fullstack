@@ -12,53 +12,38 @@ class MongoEngineJWTAuthentication(BaseAuthentication):
     """
     
     def authenticate(self, request):
-        print("🔐 Custom MongoEngine JWT authentication called")
         
         # Get the Authorization header
         auth_header = request.META.get('HTTP_AUTHORIZATION')
         if not auth_header:
-            print("❌ No Authorization header")
             return None
             
         # Parse the token
         try:
             token_type, token = auth_header.split(' ')
             if token_type.lower() != 'bearer':
-                print("❌ Not a Bearer token")
                 return None
         except ValueError:
-            print("❌ Invalid Authorization header format")
             return None
         
         try:
             # Decode the JWT token
-            print(f"🎫 Decoding token: {token[:20]}...")
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-            print(f"� Token payload: {payload}")
             
             # Get user ID from token
             user_id = payload.get('user_id')
             if not user_id:
-                print("❌ No user_id in token payload")
-                raise AuthenticationFailed('Invalid token: no user ID')
+                return None
             
-            print(f"🔍 Looking for user with ID: {user_id}")
-            
-            # Find user in MongoDB
             user = User.objects.get(id=user_id)
-            print(f"✅ Found user: {user.email}")
             
             return (user, token)
             
         except jwt.ExpiredSignatureError:
-            print("❌ Token has expired")
-            raise AuthenticationFailed('Token has expired')
-        except jwt.InvalidTokenError as e:
-            print(f"❌ Invalid token: {e}")
-            raise AuthenticationFailed('Invalid token')
-        except DoesNotExist:
-            print(f"❌ User not found with ID: {user_id}")
-            raise AuthenticationFailed('User not found')
+            return None
+        except jwt.InvalidTokenError:
+            return None
+        except User.DoesNotExist:
+            return None
         except Exception as e:
-            print(f"💥 Authentication error: {e}")
-            raise AuthenticationFailed('Authentication failed')
+            return None

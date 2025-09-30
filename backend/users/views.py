@@ -149,29 +149,23 @@ def login(request):
 def oauth_login(request):
     """OAuth login endpoint"""
     try:
-        print("🔥 OAuth login request received")
         data = json.loads(request.body)
         id_token = data.get('idToken')
-        print(f"📨 ID token received: {bool(id_token)}")
         
         if not id_token:
-            print("❌ No ID token provided")
             return JsonResponse({
                 'success': False,
                 'message': 'ID token is required'
             }, status=400)
         
         # Verify Firebase token
-        print("🔍 Verifying Firebase token...")
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
         email = decoded_token.get('email')
         name = decoded_token.get('name', '')
         picture = decoded_token.get('picture', '')
-        print(f"✅ Token verified for user: {email}")
         
         if not email:
-            print("❌ No email in token")
             return JsonResponse({
                 'success': False,
                 'message': 'Email not provided by OAuth provider'
@@ -179,16 +173,13 @@ def oauth_login(request):
         
         # Find or create user
         try:
-            print(f"🔍 Looking for existing user: {email}")
             user = User.objects.get(email=email)
-            print("✅ Found existing user")
             user.google_id = uid
             user.is_oauth_user = True
             if picture:
                 user.profile_picture = picture
             user.save()
         except DoesNotExist:
-            print("👤 Creating new user")
             user = User(
                 name=name,
                 email=email,
@@ -197,11 +188,8 @@ def oauth_login(request):
                 profile_picture=picture
             )
             user.save()
-            print("✅ New user created")
         
-        print("🎫 Generating tokens...")
         tokens = get_tokens_for_user(user)
-        print("✅ OAuth login successful")
         
         return JsonResponse({
             'success': True,
@@ -211,19 +199,16 @@ def oauth_login(request):
         })
         
     except auth.InvalidIdTokenError as e:
-        print(f"❌ Invalid ID token: {e}")
         return JsonResponse({
             'success': False,
             'message': 'Invalid ID token'
         }, status=401)
     except json.JSONDecodeError as e:
-        print(f"❌ JSON decode error: {e}")
         return JsonResponse({
             'success': False,
             'message': 'Invalid JSON'
         }, status=400)
     except Exception as e:
-        print(f"💥 Unexpected error in OAuth login: {e}")
         return JsonResponse({
             'success': False,
             'message': 'Server error'

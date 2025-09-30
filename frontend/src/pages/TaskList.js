@@ -30,7 +30,6 @@ const TaskList = () => {
       setTasks(response.data.data);
       setTotalPages(response.data.pages);
     } catch (error) {
-      console.error('Fetch tasks error:', error);
       setError(error.response?.data?.message || 'Failed to load tasks');
     } finally {
       setLoading(false);
@@ -51,7 +50,6 @@ const TaskList = () => {
       await taskAPI.updateTask(taskId, { status: newStatus });
       fetchTasks(); // Refresh the list
     } catch (error) {
-      console.error('Update status error:', error);
       setError(error.response?.data?.message || 'Failed to update task');
     }
   };
@@ -68,7 +66,6 @@ const TaskList = () => {
       setTaskToDelete(null);
       fetchTasks(); // Refresh the list
     } catch (error) {
-      console.error('Delete task error:', error);
       setError(error.response?.data?.message || 'Failed to delete task');
       setShowDeleteModal(false);
     }

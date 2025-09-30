@@ -37,7 +37,6 @@ const CreateTask = () => {
         setUsers([user]);
       }
     } catch (error) {
-      console.error('Fetch users error:', error);
       // If fetching users fails, just use current user
       setUsers([user]);
     }
@@ -94,7 +93,6 @@ const CreateTask = () => {
       }, 1500);
       
     } catch (error) {
-      console.error('Create task error:', error);
       setError(error.response?.data?.message || 'Failed to create task');
     } finally {
       setLoading(false);

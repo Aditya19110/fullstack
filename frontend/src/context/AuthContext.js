@@ -173,12 +173,9 @@ export const AuthProvider = ({ children }) => {
   // Firebase OAuth login
   const loginWithFirebase = async (idToken) => {
     try {
-      console.log('🚀 Starting OAuth login with idToken:', idToken ? 'Token received' : 'No token');
       dispatch({ type: actionTypes.SET_LOADING, payload: true });
       
-      console.log('📡 Sending request to backend:', '/users/oauth-login/');
       const response = await API.post('/users/oauth-login/', { idToken });
-      console.log('✅ Backend response:', response.data);
       
       dispatch({
         type: actionTypes.LOGIN_SUCCESS,
@@ -189,9 +186,6 @@ export const AuthProvider = ({ children }) => {
       });
       return { success: true, message: response.data.message };
     } catch (error) {
-      console.error('❌ OAuth login error:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
       const message = error.response?.data?.message || 'OAuth login failed';
       dispatch({
         type: actionTypes.LOGIN_FAIL,

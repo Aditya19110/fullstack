@@ -62,7 +62,6 @@ const Profile = () => {
       // Reload user data to get updated info
       await loadUser();
     } catch (error) {
-      console.error('Update profile error:', error);
       setError(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);

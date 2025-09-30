@@ -11,32 +11,21 @@ const OAuthLogin = ({ loading: parentLoading, error: parentError }) => {
 
   const handleGoogleLogin = async () => {
     try {
-      console.log('🔥 Starting Google OAuth login...');
       setLocalLoading(true);
       setLocalError('');
       
       // Sign in with Google
-      console.log('📱 Opening Google popup...');
       const result = await signInWithPopup(auth, googleProvider);
-      console.log('✅ Google popup successful, user:', result.user?.email);
       
-      console.log('🎫 Getting ID token...');
       const idToken = await result.user.getIdToken();
-      console.log('✅ ID token obtained, length:', idToken?.length);
       
       // Send token to your backend
-      console.log('📤 Sending token to backend...');
       const response = await loginWithFirebase(idToken);
-      console.log('📥 Backend response:', response);
       
       if (!response.success) {
-        console.error('❌ Backend login failed:', response.message);
         setLocalError(response.message || 'Login failed');
-      } else {
-        console.log('🎉 OAuth login successful!');
       }
     } catch (error) {
-      console.error('💥 Google login error:', error);
       
       if (error.code === 'auth/popup-closed-by-user') {
         setLocalError('Login cancelled');
