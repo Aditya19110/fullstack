@@ -147,6 +147,10 @@ npm start
 
 ### Docker Deployment
 ```bash
+# Make sure you have the .env file configured
+cp .env.example .env
+# Edit .env with your values
+
 # Build and run with Docker Compose
 docker-compose up --build
 
