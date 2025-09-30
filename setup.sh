@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "Setting up Fullstack Assignment Project..."
-echo "========================================"
+echo "Setting up Fullstack Task Management Application..."
+echo "======================================================"
 
 # Function to check if command exists
 command_exists() {
@@ -25,9 +25,7 @@ echo "Node.js and npm are installed"
 
 # Install dependencies
 echo ""
-echo "Installing dependencies..."
-echo "Installing root dependencies..."
-npm install
+echo "📦 Installing dependencies..."
 
 echo "Installing backend dependencies..."
 cd backend && npm install
@@ -53,19 +51,19 @@ fi
 
 # Check environment files
 echo ""
-echo "Checking environment configuration..."
+echo "Setting up environment configuration..."
 
-if [ ! -f "frontend/.env" ]; then
-    echo "Frontend .env file is missing"
-    exit 1
+if [ ! -f ".env" ]; then
+    echo "Creating .env file from template..."
+    cp .env.example .env
+    echo ".env file created!"
+    echo "Please edit .env with your actual configuration values:"
+    echo "   - MongoDB connection string"
+    echo "   - JWT secret key" 
+    echo "   - Firebase configuration (both backend and frontend)"
+else
+    echo ".env file already exists"
 fi
-
-if [ ! -f "backend/.env" ]; then
-    echo "Backend .env file is missing"
-    exit 1
-fi
-
-echo "Environment files found"
 
 # Firebase setup reminder
 echo ""
